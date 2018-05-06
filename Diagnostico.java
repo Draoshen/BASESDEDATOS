@@ -18,7 +18,7 @@
 	
 	import java.io.FileReader;
 	
-	import java.sql.Connection;
+import java.sql.Connection;
 
 	
 	
@@ -260,7 +260,7 @@
 
 	    		    
 
-	    		         String SQLcodigoS  = "CREATE TABLE `sympton` (`cui` VARCHAR(45) NOT NULL,`name` VARCHAR(255), PRIMARY KEY(`cui`))ENGINE=Inno08;";
+	    		         String SQLcodigoS  = "CREATE TABLE `symptom` (`cui` VARCHAR(45) NOT NULL,`name` VARCHAR(255), PRIMARY KEY(`cui`))ENGINE=Inno08;";
 
 	    		        
 
@@ -550,18 +550,8 @@ try{
 
             System.out.println("Fallo en disecion de data o en introducir los datos en tablas");
 
-    }
-
-        
-
-
-        
-
-  
-
-        
-
-        //Encunciado //la base de datos [2 puntos]: El programa debe pedir por teclado que síntomas quiere
+    }     
+      //Encunciado //la base de datos [2 puntos]: El programa debe pedir por teclado que síntomas quiere
 
         //tener en cuenta para realizar el diagnóstico. Los síntomas deben solicitarse para ser
 
@@ -578,21 +568,6 @@ try{
         System.out.print("Introduzca los síntomas para realizar diagnóstico");
 
         //mostrar sintomas y sus codigos
-
-
-        
-
-
-
-        
-
-        
-
-        
-
-        
-
-    
 
         //while (setSin.next() && setCo.next() ){
 
@@ -679,8 +654,8 @@ try{
 	    	  String SQLlistarenfermedad1 = "INSERT INTO `diagnostico`.`disease` (`disease_id`, `name`) VALUES ('362', 'Anorexia nervosa');";
 	    	  String SQLlistarenfermedad2 = "INSERT INTO `diagnostico`.`disease` (`disease_id`, `name`) VALUES ('364', 'funciona!!!');";
 	    	  
-	    	  String SQLsintomas =  "INSERT INTO `diagnostico`.`disease_symptom` (`disease_id`, `cui`) VALUES ('362', 'Visita con frecuencia al Señor ROCA');";
-	    	  String SQLsintomas1 = "INSERT INTO `diagnostico`.`disease_symptom` (`disease_id`, `cui`) VALUES ('363', 'Buff que alivio, parece que funciona');";
+	    	  String SQLsintomas =  "INSERT INTO `diagnostico`.`disease_symptom` (`disease_id`, `cui`) VALUES ('362', 'Señor roca');";
+	    	  String SQLsintomas1 = "INSERT INTO `diagnostico`.`disease_symptom` (`disease_id`, `cui`) VALUES ('363', 'parece que funciona');";
 	    	  String SQLsintomas2 = "INSERT INTO `diagnostico`.`disease_symptom` (`disease_id`, `cui`) VALUES ('364', 'Canta canciones satánicas');";
 	    	  PreparedStatement SQLListarEnfermedades =  conn.prepareStatement(SQLlistarenfermedad);
 	    	  PreparedStatement SQLListarEnfermedades1 = conn.prepareStatement(SQLlistarenfermedad1);
@@ -689,12 +664,18 @@ try{
 	    	  PreparedStatement SQLSINTOMAS = conn.prepareStatement(SQLsintomas);
 	    	  PreparedStatement SQLSINTOMAS1 = conn.prepareStatement(SQLsintomas1);
 	    	  PreparedStatement SQLSINTOMAS2 = conn.prepareStatement(SQLsintomas2);
+	    	  
 	    	  SQLListarEnfermedades.executeUpdate();
 	    	  SQLListarEnfermedades1.executeUpdate();
 	    	  SQLListarEnfermedades2.executeUpdate();
+	    	  
+	    	  SQLSINTOMAS.executeUpdate();
+	    	  SQLSINTOMAS1.executeUpdate();
+	    	  SQLSINTOMAS2.executeUpdate();
+
 
 	    	  
-	//       
+	//       ¡QUITAR ANTES DE LA ENTREGA DE LA PRÁTICA!(lo de la receta)
 	    	  /* RECUERDA LA RECETA PARA HACER SELECTS
 	    	   * ESTE PASO DE AQUI LO QUE HACE ES HACER LA QUERY
 	    	   * Statement stmt = conn.createStatement();
@@ -708,82 +689,294 @@ try{
 	    	   */
 	    	
 	    	String SQLEnfermedades = "SELECT disease_id, name FROM disease; ";
-	    	
 	    	PreparedStatement SQLEnfermedades1 = conn.prepareStatement(SQLEnfermedades);
 	    	
+	    	/*
+	    	 * Este linkedList lo usaremos para saber si el código que ha introducido es válido o 
+	    	 * no está presente en nuestra base de datos
+	    	 * 
+	    	 */
+	    	
+	    	LinkedList<Integer> enfermedades = new LinkedList<Integer>();
+	    	boolean presenteBD = false;
 
 	    	ResultSet resu =SQLEnfermedades1.executeQuery();
 	    	while (resu.next()) {
 	    		
 	    		int diseaseID= resu.getInt("disease_id");
+	    		
+	    		//Vamos a introducirlos en el linkedList para posteriormente hacer la comprobación 
+	    		enfermedades.add(diseaseID);
+	    		
+	    		
 	    		String name = resu.getString("name");
 					System.out.print("disease id: " + diseaseID);
 					System.out.println(", name : " + name);
 
 						}
 	    	resu.close();
-	        //    cuales son las enfermedades que hay en la base de datos, y el usuario debe
-	    		
-	        //    introducir el ID que corresponda para seleccionar la enfermedad.
+	    		     
 	    	System.out.println("Escriba ahora su código");
 	    	try {
 	    		
 	    		//Esta sería la parte de seleccionar el id
-				String  n =readString();
+				int  n =readInt();
+				//vamos a ver si está presente en la BD
+		    	for(int i=0;i<enfermedades.size();i++){
+		    		if(n==enfermedades.get(i)){
+		    			presenteBD= true;
+		    		}
+		    	}
+		    	
 				System.out.println("Este es tu código: "+n);
-				String SQLdiseasecode = n;
-				PreparedStatement rs= conn.prepareStatement("SELECT * FROM disease WHERE disease_id ="+n);
-				ResultSet rs1 =rs.executeQuery();
+				if(presenteBD==true){
+				PreparedStatement rs= conn.prepareStatement("SELECT disease_id, cui FROM disease_symptom WHERE disease_id ="+n);
+				ResultSet resultLectura =rs.executeQuery();
+				while(resultLectura.next()){
+					int diseaseID= resultLectura.getInt("disease_id");
+		    		String sintomas = resultLectura.getString("cui");
+						System.out.print("disease id: " + diseaseID);
+						System.out.println(", sintomas : " + sintomas);
+				}
+				resultLectura.close();
+				}
+				else{
+					System.out.println("El código que Usted ha introducido no se haya presente en nuestra Base de Datos, intente con otro código");
+				}
+		    	
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				
 			}
 	    	
+	    	//Para que no este todo apelmazado y darle un poco más de visibilidad
+	    	System.out.println("");
 	    	
 	    			
 	    }
 	
 	
-	    private void listarEnfermedadesYCodigosAsociados() {
+	    private void listarEnfermedadesYCodigosAsociados() throws SQLException {
+	    	try {
+				crearBD();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+	    	  String SQLlistarenfermedad =   "INSERT INTO `diagnostico`.`disease` (`disease_id`, `name`) VALUES ('363', 'Alluha hackbar');";
+	    	  String SQLlistarenfermedad1 = "INSERT INTO `diagnostico`.`disease` (`disease_id`, `name`) VALUES ('362', 'Anorexia nervosa');";
+	    	  String SQLlistarenfermedad2 = "INSERT INTO `diagnostico`.`disease` (`disease_id`, `name`) VALUES ('364', 'funciona!!!');";
+	    	  
+
+	    	 
+	    	  String SQLsintomas =  "INSERT INTO `diagnostico`.`disease_has_code` (`disease_id`, `code`, `source_id`) VALUES ('362', 'JJUVKL', '23');";
+	    	  String SQLsintomas1 = "INSERT INTO `diagnostico`.`disease_has_code` (`disease_id`, `code`, `source_id`) VALUES ('363', 'Uvogin', '32');";
+	    	  String SQLsintomas2 = "INSERT INTO `diagnostico`.`disease_has_code` (`disease_id`, `code`, `source_id`) VALUES ('364', 'Kurapika', '33')";
+
+	    	  PreparedStatement SQLListarEnfermedades =  conn.prepareStatement(SQLlistarenfermedad);
+	    	  PreparedStatement SQLListarEnfermedades1 = conn.prepareStatement(SQLlistarenfermedad1);
+	    	  PreparedStatement SQLListarEnfermedades2 = conn.prepareStatement(SQLlistarenfermedad2);
+	    	  
+	    	  PreparedStatement SQLSINTOMAS = conn.prepareStatement(SQLsintomas);
+	    	  PreparedStatement SQLSINTOMAS1 = conn.prepareStatement(SQLsintomas1);
+	    	  PreparedStatement SQLSINTOMAS2 = conn.prepareStatement(SQLsintomas2);
+	    	  
+	    	  SQLListarEnfermedades.executeUpdate();
+	    	  SQLListarEnfermedades1.executeUpdate();
+	    	  SQLListarEnfermedades2.executeUpdate();
+	    	  
+	    	  SQLSINTOMAS.executeUpdate();
+	    	  SQLSINTOMAS1.executeUpdate();
+	    	  SQLSINTOMAS2.executeUpdate();
+	    	 
+	        //  b. Listado de enfermedades de la base de datos y sus códigos asociados [0.5
 	
-	//        b. Listado de enfermedades de la base de datos y sus códigos asociados [0.5
+	        //  puntos]: El programa debe mostrar las enfermedades que contiene la base de
 	
-	        //    puntos]: El programa debe mostrar las enfermedades que contiene la base de
-	
-	        //    datos, y para cada enfermedad que códigos tiene (y tipo de código).
-	
+	        //  datos, y para cada enfermedad que códigos tiene (y tipo de código).
+	    	  //mostramos las enfermedades por pantalla
+	    	  
+	    	try {
+	    	LinkedList<String> diseasesNames = new LinkedList<String>();
+	    	LinkedList<Integer> diseasesID = new LinkedList<Integer>();
+	    	LinkedList<String> diseasesNames1 = new LinkedList<String>();
+	    	String SQLEnfermedades =    "SELECT name, disease_id FROM disease; ";
+	    	String SQLEnfermedadesCOD = "SELECT code, source_id FROM disease_has_code WHERE disease_id= "; 
+	    	/*
+	    	 * Aquí introduciremos un numero, que va a ser el que hemos almacenado previamente 
+	    	 * en el ArrayList de tipo enteros (Este array contiene de cada enfermedad su código, en función)
+	    	 * del orden en el que estén en la base de datos 
+	    	*/
+	    	PreparedStatement SQLEnfermedades1 = conn.prepareStatement(SQLEnfermedades);
+	    	
+
+	    	ResultSet resu =SQLEnfermedades1.executeQuery();
+	    	while (resu.next()) {
+	    			
+	    			
+	    			diseasesID.add(resu.getInt("disease_id"));//Este es el de los numeros
+	    			diseasesNames.add(resu.getString("name"));
+	  
+					
+	    			}
+		
+	    	resu.close();
+	    	for(int i=0;i<diseasesID.size();i++){
+	    		PreparedStatement SQLEnfermedadesCod = conn.prepareStatement(SQLEnfermedadesCOD+diseasesID.get(i));
+	    		ResultSet rscodes = SQLEnfermedadesCod.executeQuery();
+	    		
+	    		while(rscodes.next()){
+	    			diseasesNames1.add(diseasesNames.get(i)+"; este es su código: "+rscodes.getString("code")+";  y este es su tipo de código: "
+	    					+rscodes.getInt("source_id"));
+	    		}
+	    		
+	    	}
+	    	/*
+	    	 * AHORA VAMOS A IMPRIMIR UNA A UNA TODAS LAS ENFERMEDADES CON SUS RESPECTIVOS CÓDIGOS 
+	    	 * Y SUS RESPECTIVOS CAMPOS
+	    	 */
+	    	for(int i =0;i<diseasesNames1.size();i++){
+	    	System.out.print("Este es el nombre de la enfermedad: ");
+	    	System.out.println(diseasesNames1.get(i));
+	    	}
+	    
+	    }catch(Exception e){
+	    	e.printStackTrace();}
+	    	
+	    	//Para que no este todo apelmazado y darle un poco más de visibilidad
+	    	System.out.println("");
 	    }
+	    
+	    
 	
-	
-	    private void listarSintomasYTiposSemanticos() {
-	
-	        //    c. Listado de síntomas disponible en la base de datos y sus tipos semánticos
-	
-	        //    asociados [0.5 puntos]: El programa debe mostrar los síntomas que contiene la
-	
-	        //    base de datos y sus tipos semánticos asociados.
-	
+	    private void listarSintomasYTiposSemanticos() throws SQLException {
+	    	/*
+	    	 * RECUERDA QUE TODO ESTO ESTÁ REALIZADO CON UNOS DATOS QUE HEMOS 
+	    	 * IDO INTRODUCIENDO NOSOTROS, Y QUE HABRÁ QUE QUITAR TODAS AQUELLAS PARTES
+	    	 * HAY QUE BORRAR DE AQUÍ:
+	    	 *  1. LA CREACION DE LA BASE DE DATOS
+	    	 *  2. TODOS LOS INSERTS QUE SE HAYAN HECHO DESDE AQUI
+	    	 *  3. HACER TODO ESTO CUANDO FUNCIONEN CORRECTAMENTE LOS INSERTS 
+	    	 */
+	       	try {
+				crearBD();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	    	
+	    	
+	    	String SQLsymptom1 = "INSERT INTO `diagnostico`.`symptom` (`cui`, `name`) VALUES ('11', 'anorexia');";
+	    	String SQLsymptom2 = "INSERT INTO `diagnostico`.`symptom` (`cui`, `name`) VALUES ('12', 'risa incontralada');";
+	    	String SQLsymptom3 = "INSERT INTO `diagnostico`.`symptom` (`cui`, `name`) VALUES ('13', 'fuma');";
+	    	PreparedStatement SQLSymptom1 = conn.prepareStatement(SQLsymptom1);
+	    	PreparedStatement SQLSymptom2 = conn.prepareStatement(SQLsymptom2);
+	    	PreparedStatement SQLSymptom3 = conn.prepareStatement(SQLsymptom3);
+	    	
+	    	SQLSymptom1.executeUpdate();
+	    	SQLSymptom2.executeUpdate();
+	    	SQLSymptom3.executeUpdate();
+	    	
+	    	
+	    	
+	    	
+	    	String SQLsymptomsemantic1 = "INSERT INTO `diagnostico`.`symptom_semantic_type` (`semantic_type_id`, `cui`) VALUES ('44', '11');";
+	    	String SQLsymptomsemantic2 = "INSERT INTO `diagnostico`.`symptom_semantic_type` (`semantic_type_id`, `cui`) VALUES ('55', '12');";
+	    	String SQLsymptomsemantic3 = "INSERT INTO `diagnostico`.`symptom_semantic_type` (`semantic_type_id`, `cui`) VALUES ('66', '13');";
+	    	
+	    	
+	    	PreparedStatement symptomsSemantic1 = conn.prepareStatement(SQLsymptomsemantic1);
+	    	PreparedStatement symptomsSemantic2 = conn.prepareStatement(SQLsymptomsemantic2);
+	    	PreparedStatement symptomsSemantic3 = conn.prepareStatement(SQLsymptomsemantic3);
+	    	
+	    	
+	    	
+	    	symptomsSemantic1.executeUpdate();
+	    	symptomsSemantic2.executeUpdate();
+	    	symptomsSemantic3.executeUpdate();
+	    	
+	    	//Primero cogemos los sintomas 
+	    	LinkedList<String> symptoms = new LinkedList<String>();
+	    	LinkedList<Integer> symptomsCUI = new LinkedList<Integer>();
+	    	LinkedList<String> symptoms1 = new LinkedList<String>();
+
+	    	
+	    	String SQLSYMPTOM = "SELECT cui, name FROM symptom";
+	    	PreparedStatement symptomSQL = conn.prepareStatement(SQLSYMPTOM);
+	    	ResultSet resultSymptom =symptomSQL.executeQuery();
+	    	
+	    	/*
+	    	 * Hacemos una query para obtener los nombres de cada síntoma y obtener sus códigos asociados
+	    	 * una vez hemos obtenido estos, podremos realizar una consulta con estos campos semánticos 
+	    	 * y así obtener de manera conjunta el nobre del síntoma y sus campos semánticos
+	    	 */
+	    	while(resultSymptom.next()){
+	    		symptoms.add(resultSymptom.getString("name"));
+	    		symptomsCUI.add(resultSymptom.getInt("cui"));
+	    		
+	    		
+	    	}
+	    	
+
+	    	//Ahora los iremos seleccionando de uno en uno mediante sus sintomas
+	    	
+	    	for(int i=0;i<symptomsCUI.size();i++){
+	    		String SQLSymptoms =  "SELECT semantic_type_id FROM symptom_semantic_type WHERE cui=";
+	    		
+	    		SQLSymptoms=SQLSymptoms+symptomsCUI.get(i);
+	    		
+	        PreparedStatement SQLsymptoms = conn.prepareStatement(SQLSymptoms);
+	        ResultSet rsSymptoms = SQLsymptoms.executeQuery();
 	        
+	        while(rsSymptoms.next()){
+	        	
+	        	//
+	        	
+	        	symptoms1.add("Esta es la enfermedad: "+symptoms.get(i)+" y este es su campo semántico: "+rsSymptoms.getInt("semantic_type_id"));
+	          }
+	        }
+	    	
+	    	//Ahora lo imprimimos todo por pantalla
+	    	for(int i =0;i<symptoms1.size();i++)
+	    	System.out.println(symptoms1.get(i));
+	    	
+	    	
+	    	//Para que no este todo apelmazado y darle un poco más de visibilidad
+	    	System.out.println("");
 	
 	    }
 	
 	
 	    private void mostrarEstadisticasBD() {
-	
-	        // ENUNCIADO
-	
-	        
-	
-	        //4. Estadísticas de la base de datos y su contenido. La funcionalidad de estadísticas debe
-	
-	        //proporcionar [2 puntos]:
-	
-	        
+	     
+	    	
+	        //Esto hay que eliminarlo antes de la prueba
+	    	
+	    	//Esto ya no
+	    	try{
+	    		String numberDiseases = "SELECT COUNT('name') FROM disease";		    	
+	    		PreparedStatement Numdiseases = conn.prepareStatement(numberDiseases);
+	    		ResultSet resultNum =Numdiseases.executeQuery();
+	            resultNum.next();          
+	            System.out.println("Esta es la cantidad de enfermedades que hay ahora mismo registradas en la base de datos:" + resultNum.getInt(1));
+	            
+	          //Para que no este todo apelmazado y darle un poco más de visibilidad
+		    	System.out.println("");
+	            
+	          }
+	          catch(SQLException s){
+	            System.out.println(s);
+	          }
 	
 	        //a. Número de enfermedades [0.5 puntos]: Un conteo del número total de
 	
 	        //enfermedades que hay en la base de datos.
+	    	
+	    	
+	    	
+	    }    	
+	    	
 	
 	        
 	
@@ -928,10 +1121,7 @@ try{
 	
 	        return data;
 	
-	    }
-	
-	    
-	
+	    }	   
 	
 	   public static void main(String args[]) {
 	
