@@ -716,7 +716,7 @@ try{
 						}
 	    	resu.close();
 	    		     
-	    	System.out.println("Escriba ahora su código");
+	    	System.out.println("Escriba ahora su ID");
 	    	try {
 	    		
 	    		//Esta sería la parte de seleccionar el id
@@ -964,32 +964,25 @@ try{
 	          //Para que no este todo apelmazado y darle un poco más de visibilidad
 		    	System.out.println("");
 	            
-	          }
-	          catch(SQLException s){
+	          }catch(SQLException s){
 	            System.out.println(s);
 	          }
-	
-	        //a. Número de enfermedades [0.5 puntos]: Un conteo del número total de
-	
-	        //enfermedades que hay en la base de datos.
 	    	
-	    	
-	    	
-	    }    	
-	    	
-	
-	        
-	
-	        
-	
-	       //    PreparedStament conteoEn= conn. prepareStatement
-	
-	        
-	
-	        ///b. Número de síntomas [0.5 puntos]: Un conteo del número total de síntomas que
-	
-	        //hay en la base de datos.
-	
+	    try{
+    		String numberSymptoms = "SELECT COUNT('name') FROM symptom";		    	
+    		PreparedStatement Numsymptoms = conn.prepareStatement(numberSymptoms);
+    		ResultSet resultNumSym =Numsymptoms.executeQuery();
+            resultNumSym.next();          
+            System.out.println("Esta es la cantidad de síntomas que hay ahora mismo registradas en la base de datos:" + resultNumSym.getInt(1));
+            
+          //Para que no este todo apelmazado y darle un poco más de visibilidad
+	    	System.out.println("");
+            
+          }
+          catch(SQLException s){
+            System.out.println(s);
+          }
+	    
 	        
 	
 	        //c. Enfermedad con más síntomas, con menos síntomas y número medio de
@@ -999,6 +992,44 @@ try{
 	        //menos síntomas y cuál es el número medio de síntomas asociados a las
 	
 	        //enfermedades.
+	    
+	    /*
+	     * Esta parte da problemas, el error que nos salta es que no se encuentra presente
+	     * en la base de datos ninguno de los nombres de las columnas
+	     * todavía no sé muy bien como resolverlo
+	     * en ambas partes falta poner la enfermedad en cuestión
+	     * todavía no sé como resolver esto tampoco
+	    */
+	    //Esta es la parte en la que se selecciona la enfermedad con myor cantidad de síntomas registrados
+	    try{
+    		String DiseaseMAX = "SELECT MAX('source_id') FROM  disease_has_code";		    	
+    		PreparedStatement MAXdisease = conn.prepareStatement(DiseaseMAX);
+    		ResultSet resultMaxSym =MAXdisease.executeQuery();
+            resultMaxSym.next();          
+            System.out.println("Esta es la enfermedad: " + " con la mayor cantidad de síntomas que hay ahora mismo registradas en la base de datos:" + resultMaxSym.getInt("source_id"));
+            
+          //Para que no este todo apelmazado y darle un poco más de visibilidad
+	    	System.out.println("");
+            
+          }
+          catch(SQLException s){
+            System.out.println(s);
+          }
+	    //Se hace igual para seleccionar la enfermedad con menor cantidad de síntomas registrados
+	    try{
+    		String DiseaseMin = "SELECT MIN('source_id') FROM  disease_has_code";		    	
+    		PreparedStatement MINdisease = conn.prepareStatement(DiseaseMin);
+    		ResultSet resultMinSym =MINdisease.executeQuery();
+            resultMinSym.next();          
+            System.out.println("Esta es la enfermedad: " +  " con la menor cantidad de síntomas que hay ahora mismo registradas en la base de datos:" + resultMinSym.getInt("source_id"));
+            
+          //Para que no este todo apelmazado y darle un poco más de visibilidad
+	    	System.out.println("");
+            
+          }
+          catch(SQLException s){
+            System.out.println(s);
+          }
 	
 	        
 	
